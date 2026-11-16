@@ -4,6 +4,8 @@ const statusText = document.getElementById("status");
 const detailText = document.getElementById("detail");
 const loading = document.getElementById("loading");
 const videoHost = document.getElementById("videoHost");
+const videoBack = document.getElementById("videoBack");
+let backTimer = null;
 const VIDEO_EXTENSIONS = /\.(mp4|m4v|mkv|webm|mov|avi|mpg|mpeg|ts|m3u8)$/i;
 window.WEBTORRENT_ANNOUNCE = [
   "wss://tracker.openwebtorrent.com",
@@ -11,6 +13,33 @@ window.WEBTORRENT_ANNOUNCE = [
   "wss://tracker.files.fm:7073/announce",
   "wss://tracker.novage.com.ua"
 ];
+
+function revealBackButton() {
+  videoBack.classList.add("is-visible");
+  clearTimeout(backTimer);
+  backTimer = setTimeout(() => {
+    videoBack.classList.remove("is-visible");
+    videoBack.blur();
+  }, 5000);
+}
+
+videoBack.addEventListener("click", () => {
+  if (window.parent !== window) window.parent.postMessage({ type: "onplay:back" }, "*");
+  else history.back();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "ArrowUp" || event.keyCode === 38) {
+    event.preventDefault();
+    revealBackButton();
+    videoBack.focus();
+  } else if (["Escape", "Backspace", "BrowserBack", "GoBack"].includes(event.key) || [461, 10009].includes(event.keyCode)) {
+    if (window.parent !== window) {
+      event.preventDefault();
+      window.parent.postMessage({ type: "onplay:back" }, "*");
+    }
+  }
+});
 
 function setStatus(title, detail = "", isError = false) {
   statusText.textContent = title;
