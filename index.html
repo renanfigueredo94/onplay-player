@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050608">
+  <title>OnPlay+ Player</title>
+  <link rel="stylesheet" href="player.css">
+</head>
+<body>
+  <main id="stage" aria-live="polite">
+    <div id="loading" class="loading">
+      <span class="spinner" aria-hidden="true"></span>
+      <p id="status">Preparando reprodução…</p>
+      <small id="detail"></small>
+    </div>
+    <div id="videoHost"></div>
+  </main>
+  <script src="webtorrent.min.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>
