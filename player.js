@@ -15,7 +15,12 @@ window.WEBTORRENT_ANNOUNCE = [
 ];
 
 function revealBackButton() {
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: "onplay:show-back" }, "*");
+    return;
+  }
   videoBack.classList.add("is-visible");
+  videoBack.focus();
   clearTimeout(backTimer);
   backTimer = setTimeout(() => {
     videoBack.classList.remove("is-visible");
@@ -32,14 +37,26 @@ document.addEventListener("keydown", event => {
   if (event.key === "ArrowUp" || event.keyCode === 38) {
     event.preventDefault();
     revealBackButton();
-    videoBack.focus();
   } else if (["Escape", "Backspace", "BrowserBack", "GoBack"].includes(event.key) || [461, 10009].includes(event.keyCode)) {
     if (window.parent !== window) {
       event.preventDefault();
       window.parent.postMessage({ type: "onplay:back" }, "*");
     }
+  } else if (["Enter", " ", "Spacebar"].includes(event.key) || [13, 23, 179].includes(event.keyCode)) {
+    if (document.activeElement === videoBack) return;
+    const video = videoHost.querySelector("video");
+    if (!video) return;
+    event.preventDefault();
+    if (video.paused) video.play().catch(() => {});
+    else video.pause();
+  } else if ([19, 415].includes(event.keyCode) || ["MediaPlay", "MediaPause"].includes(event.key)) {
+    const video = videoHost.querySelector("video");
+    if (!video) return;
+    event.preventDefault();
+    if (event.keyCode === 415 || event.key === "MediaPlay") video.play().catch(() => {});
+    else video.pause();
   }
-});
+}, true);
 
 function setStatus(title, detail = "", isError = false) {
   statusText.textContent = title;
@@ -100,11 +117,13 @@ async function start() {
       video.style.height = "100vh";
       video.style.objectFit = "contain";
       video.setAttribute("aria-label", file.name);
+      video.tabIndex = 0;
       video.addEventListener("playing", () => loading.classList.add("hidden"), { once: true });
       video.addEventListener("error", () => {
         setStatus("A TV não conseguiu reproduzir este vídeo", "O formato ou codec pode não ser compatível com o navegador webOS.", true);
       });
       videoHost.replaceChildren(video);
+      video.focus();
       setStatus("Carregando vídeo…", file.name);
       file.streamTo(video);
       video.play().catch(() => {
