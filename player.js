@@ -112,6 +112,7 @@ async function start() {
       video.controls = true;
       video.autoplay = true;
       video.playsInline = true;
+      video.muted = false;
       video.setAttribute("webkit-playsinline", "true");
       video.style.width = "100vw";
       video.style.height = "100vh";
@@ -126,9 +127,6 @@ async function start() {
       video.focus();
       setStatus("Carregando vídeo…", file.name);
       file.streamTo(video);
-      video.play().catch(() => {
-        setStatus("Vídeo pronto", "Pressione OK ou Play no controle para começar.");
-      });
     });
   } catch (error) {
     setStatus("Não foi possível iniciar o player", error.message || "Verifique a conexão e o suporte do navegador.", true);
